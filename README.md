@@ -1,6 +1,9 @@
 ### **Notice**
- - Updated get_show() method to require explicit embedding of episodes
- - Plan to add other embeds in future commit such as cast, nextepisode,  and previousepisode
+ - Cast embedding changed with Cast() object, see below **Embed cast in Show object** example
+ - ```Show._links``` changed to ```Show.links```
+ - ```Show.webChannel``` changed to ```Show.web_channel```
+ - Updated unicode handling to better support non-english languages in show/person/character names
+ - Added Updates() class with dict of Update() objects
 
 To install:
 
@@ -64,6 +67,26 @@ To install:
     >>> print(ep.title)
     Shrink Wrap
 
+    # Embed cast in Show object
+    >>> show = pytvmaze.get_show(maze_id=161, embed='cast')
+    >>> show.cast.people
+    [<Person(name=Michael C. Hall,maze_id=29740)>,
+    <Person(name=Jennifer Carpenter,maze_id=20504)>,
+    etc.]
+
+    >>> show.cast.characters
+    [<Character(name=Dexter Morgan,maze_id=41784)>,
+    <Character(name=Debra Morgan,maze_id=41786)>,
+    etc.]
+
+    # Show updates
+    >>> updates = pytvmaze.show_updates()
+    >>> updates[1]
+    <Update(maze_id=1,time=1444852010)>
+    # Time format is seconds since epoch - timestamp attribute gives datetime object
+    >>> print(updates[1].timestamp)
+    2015-10-14 12:46:50
+
 **Search with qualifiers**
 
 You can add the following qualifiers to your search:
@@ -72,6 +95,7 @@ show_year
 show_network
 show_language
 show_country
+show_web_channel
 ```
 These qualifiers will be matched against the following show attributes: premier year, country, network name, and language.
 
@@ -99,8 +123,8 @@ There are many possible attributes of the Show class, but since TV Maze is full 
     show.externals # dict of tvdb and tvrage id's if available
     show.premiered
     show.summary
-    show._links # dict of previousepisode and nextepisode keys for their links
-    show.webChannel
+    show.links # dict of previousepisode and nextepisode keys for their links
+    show.web_channel
     show.runtime
     show.type
     show.id
@@ -124,27 +148,4 @@ There are many possible attributes of the Show class, but since TV Maze is full 
     episode.airstamp
     episode.runtime
     episode.maze_id
-
-**Direct api.tvmaze.com endpoint access**
-
-Aside from these classes, you can also utilize all of the TV Maze endpoints directly, without creating an insance of the Show class, via their respective functions.  The results of these functions are JSON:
-
-    pytvmaze.show_search(show) # returns a list of fuzzy-matched shows given a show name (string)
-    pytvmaze.show_single_search(show) # returns the best-matched show
-    pytvmaze.show_single_search(show, embed=[option]) # see http://www.tvmaze.com/api#embedding for embedding other information in your results
-    pytvmaze.lookup_tvrage(tvrage_id) # get tvmaze show data from a tvrage show id
-    pytvmaze.lookup_tvdb(tvdb_id) # get tvmaze show data from a tvdb show id
-    pytvmaze.get_schedule(country='US')
-    pytvmaze.get_full_schedule() # ALL future known episodes.  Several MB large, cached for 24 hours
-    pytvmaze.show_main_info(maze_id)
-    pytvmaze.episode_list(maze_id)
-    pytvmaze.episode_by_number(maze_id, season_number, episode_number)
-    pytvmaze.episodes_by_date(maze_id, airdate) # returns a list of all episodes that show aired on that day, airdate must be ISO 8601 formatted
-    pytvmaze.show_cast(maze_id)
-    pytvmaze.show_index(page=1)
-    pytvmaze.people_search(person)
-    pytvmaze.person_main_info(person_id)
-    pytvmaze.person_cast_credits(person_id)
-    pytvmaze.person_crew_credits(person_id)
-    pytvmaze.show_updates()
-    pytvmaze.show_akas(maze_id)
+    episode.summary
